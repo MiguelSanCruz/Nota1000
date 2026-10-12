@@ -1,7 +1,7 @@
-import 'package:nota_1000/app_Controller.dart';
+import 'presentation/controllers/app_Controller.dart';
 import 'package:flutter/material.dart';
-import 'package:nota_1000/login_page.dart';
-import 'package:nota_1000/home_page.dart';
+import 'package:nota_1000/presentation/views/login/login_page.dart';
+import 'package:nota_1000/presentation/views/home/home_page.dart';
 
 
 class MyApp extends StatelessWidget {
@@ -14,6 +14,7 @@ class MyApp extends StatelessWidget {
       animation: AppTheme.instance,
       builder: (context, child){
         return MaterialApp(
+          debugShowCheckedModeBanner: false,
           theme:ThemeData(
             brightness: AppTheme.instance.isDarkMode ? Brightness.dark : Brightness.light,
           ),
