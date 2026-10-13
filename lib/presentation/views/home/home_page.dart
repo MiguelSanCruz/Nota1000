@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:nota_1000/presentation/controllers/app_Controller.dart';
 import 'package:nota_1000/presentation/views/quiz/quiz_page.dart';
+import 'package:nota_1000/presentation/widgets/custom_appbar.dart';
 
 class HomePage extends StatefulWidget {
   @override
@@ -101,9 +101,9 @@ class _HomePageState extends State<HomePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('NOTA 1000'),
-        backgroundColor: const Color.fromARGB(255, 2, 139, 43),
+      appBar: CustomAppBar(
+        title: 'NOTA 1000',
+        showBackButton: false,
       ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16.0),
@@ -313,20 +313,6 @@ class PainelInferior extends StatelessWidget {
           ],
         ),
       ],
-    );
-  }
-}
-
-
-class CustomTheme extends StatelessWidget {
-
-  @override
-  Widget build(BuildContext context) {
-    return Switch(
-    value: AppTheme.instance.isDarkMode,
-    onChanged: (value) {
-      AppTheme.instance.changeTheme();
-    },
     );
   }
 }
