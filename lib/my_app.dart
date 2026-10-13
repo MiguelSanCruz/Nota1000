@@ -2,6 +2,7 @@ import 'presentation/controllers/app_Controller.dart';
 import 'package:flutter/material.dart';
 import 'package:nota_1000/presentation/views/login/login_page.dart';
 import 'package:nota_1000/presentation/views/home/home_page.dart';
+import 'package:nota_1000/presentation/views/quiz/quiz_page.dart';
 import 'core/constants/app_colors.dart';
 
 
@@ -51,6 +52,7 @@ class MyApp extends StatelessWidget {
           routes: {
             '/': (context) => LoginPage(),
             '/home': (context) => HomePage(),
+            '/quiz': (context) => QuizPage(),
           },
         );
       }
