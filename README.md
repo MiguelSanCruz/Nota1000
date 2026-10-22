@@ -38,7 +38,7 @@ O projeto foi construído utilizando tecnologias modernas do ecossistema Flutter
 O projeto adota uma estrutura modularizada para separar responsabilidades de dados, regras de negócio e interface:
 
 ```text
-llib/
+lib/
 ├── core/
 │   ├── constants/
 │   │   ├── app_colors.dart             # Definição de cores globais
@@ -72,6 +72,9 @@ llib/
 assets/
 └── json/
     └── questoes.json                   # Base de dados em JSON com as questões do ENEM
+```
+---
+
 ## 🗄️ Estrutura do Banco de Dados Local
 
 O SQLite local é estruturado em duas tabelas principais vinculadas por relacionamento:
