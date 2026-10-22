@@ -72,5 +72,23 @@ llib/
 assets/
 └── json/
     └── questoes.json                   # Base de dados em JSON com as questões do ENEM
+## 🗄️ Estrutura do Banco de Dados Local
 
-    
+O SQLite local é estruturado em duas tabelas principais vinculadas por relacionamento:
+1. **`questions`**: Armazena metadados da questão (`question_index`, ano, disciplina, matéria, contexto, enunciado, gabarito).
+2. **`alternatives`**: Armazena as opções de resposta ligadas à questão correspondente através do campo `question_index`.
+
+---
+
+## ⚙️ Como Executar o Projeto
+
+Siga os passos abaixo para clonar e rodar o projeto em sua máquina:
+
+### Pré-requisitos
+Certifique-se de ter o [Flutter SDK](https://docs.flutter.dev/get-started/install) instalado e configurado em seu ambiente.
+
+### Passo a passo
+
+1. Clone o repositório:
+   ```bash
+   git clone [https://github.com/seu-usuario/nota-1000.git](https://github.com/seu-usuario/nota-1000.git)
