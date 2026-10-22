@@ -17,6 +17,15 @@ class AlternativeModel {
     );
   }
 
+  // Novo: Construtor para ler as alternativas direto do SQLite
+  factory AlternativeModel.fromMap(Map<String, dynamic> map) {
+    return AlternativeModel(
+      letter: map['letter'] ?? '',
+      text: map['text'] ?? '',
+      isCorrect: (map['isCorrect'] == 1), // SQLite guarda booleano como 1 ou 0
+    );
+  }
+
   Map<String, dynamic> toJson() => {
         'letter': letter,
         'text': text,
@@ -64,6 +73,25 @@ class QuestionModel {
       alternativesIntroduction: json['alternativesIntroduction'] ?? '',
       files: listFiles,
       correctAlternative: json['correctAlternative'] ?? '',
+      alternatives: listAlternatives,
+    );
+  }
+
+  // Novo: Construtor para montar a Questão combinando os dados do SQLite e a lista de alternativas
+  factory QuestionModel.fromMap(Map<String, dynamic> map, List<Map<String, dynamic>> alternativeMaps) {
+    List<AlternativeModel> listAlternatives = alternativeMaps
+        .map((altMap) => AlternativeModel.fromMap(altMap))
+        .toList();
+
+    return QuestionModel(
+      index: map['question_index'] ?? 0,
+      year: map['year'] ?? 0,
+      discipline: map['discipline'] ?? '',
+      materia: map['materia'] ?? '',
+      context: map['context'] ?? '',
+      alternativesIntroduction: map['alternativesIntroduction'] ?? '',
+      files: [], // Caso guarde arquivos depois, pode ajustar aqui
+      correctAlternative: map['correctAlternative'] ?? '',
       alternatives: listAlternatives,
     );
   }

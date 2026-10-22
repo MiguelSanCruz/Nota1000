@@ -3,6 +3,8 @@ import 'package:nota_1000/presentation/views/quiz/quiz_page.dart';
 import 'package:nota_1000/presentation/widgets/custom_appbar.dart';
 
 class HomePage extends StatefulWidget {
+  const HomePage({super.key});
+
   @override
   State<HomePage> createState() => _HomePageState();
 }
@@ -24,295 +26,196 @@ class _HomePageState extends State<HomePage> {
     "Biologia",
     "Todas"
   ];
-  final TextEditingController _controllerNumeroPerguntas = TextEditingController(text: '0');
-  bool temTempo = false;
-  final Map<String, int> contadoresIndividuais = {};
+final Map<String, int> _perguntasPorMateria = {};
 
-  @override
-  void initState() {
-    super.initState();
-    for (var materia in question) {
-      contadoresIndividuais[materia] = 0;
-    }
+  int get _totalPerguntas {
+    int total = 0;
+    _perguntasPorMateria.forEach((key, value) {
+      if (key != "Todas") {
+        total += value;
+      }
+    });
+    return total;
   }
 
-  @override
-  void dispose() {
-    _controllerNumeroPerguntas.dispose();
-    super.dispose();
-  }
-
-  void _iniciarQuiz() {
-    int totalPerguntas = int.tryParse(_controllerNumeroPerguntas.text) ?? 0;
-
-    // Altere a condição aqui para > 1 (ou >= 2)
-    if (totalPerguntas > 1) {
-      Navigator.push(
-        context,
-        MaterialPageRoute(
-          builder: (context) => QuizPage(
-          ),
-        ),
-      );
-    } else {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('O contador global precisa ser maior que 1 para começar!'),
-          backgroundColor: Colors.red,
-          duration: Duration(seconds: 2),
-        ),
-      );
-    }
-  }
-
-  void _incrementarMateria(String materia) {
-    setState(() {
-      int totalAtual = int.tryParse(_controllerNumeroPerguntas.text) ?? 0;
-
-      if (materia == "Todos") {
-        // Se clicar em "Todos", adiciona 1 em todas as outras matérias (exceto o próprio "Todos")
-        for (var m in question) {
-          if (m != "Todos") {
-            contadoresIndividuais[m] = (contadoresIndividuais[m] ?? 0) + 1;
+  // Função acionada ao clicar em qualquer botão de matéria
+  void _onMateriaTap(String materia) {
+    if (materia == "Todas") {
+      // Acrescenta +1 a todas as matérias (exceto 'Todas')
+      setState(() {
+        for (var item in question) {
+          if (item != "Todas") {
+            _perguntasPorMateria[item] = (_perguntasPorMateria[item] ?? 0) + 1;
           }
         }
-        // Adiciona 13 no contador global
-        totalAtual += 13;
-        _controllerNumeroPerguntas.text = totalAtual.toString();
-      } else {
-        // Comportamento normal para os outros botões
-        contadoresIndividuais[materia] = (contadoresIndividuais[materia] ?? 0) + 1;
-        totalAtual++;
-        _controllerNumeroPerguntas.text = totalAtual.toString();
-      }
-    });
+      });
+    } else {
+      // Para as outras matérias, abre o diálogo de digitação
+      _abrirDialogoQuantidade(materia);
+    }
   }
 
-  void _voltarPergunta() {
-    setState(() {
-      int totalAtual = int.tryParse(_controllerNumeroPerguntas.text) ?? 0;
-      if (totalAtual > 0) {
-        totalAtual--;
-        _controllerNumeroPerguntas.text = totalAtual.toString();
-      }
-    });
+  // Diálogo para digitar a quantidade individual
+  void _abrirDialogoQuantidade(String materia) {
+    final TextEditingController controller = TextEditingController(
+      text: (_perguntasPorMateria[materia] ?? '').toString(),
+    );
+
+    showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: Text('Quantidade para $materia'),
+          content: TextField(
+            controller: controller,
+            keyboardType: TextInputType.number,
+            autofocus: true,
+            decoration: const InputDecoration(
+              labelText: 'Número de perguntas',
+              border: OutlineInputBorder(),
+            ),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: const Text('Cancelar'),
+            ),
+            ElevatedButton(
+              onPressed: () {
+                int? qtd = int.tryParse(controller.text);
+                if (qtd != null && qtd > 0) {
+                  setState(() {
+                    _perguntasPorMateria[materia] = qtd;
+                  });
+                } else {
+                  setState(() {
+                    _perguntasPorMateria.remove(materia);
+                  });
+                }
+                Navigator.pop(context);
+              },
+              child: const Text('Confirmar'),
+            ),
+          ],
+        );
+      },
+    );
   }
+  void _iniciarSimulado() {
+  if (_totalPerguntas == 0) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(
+        content: Text('Selecione ao menos uma matéria e quantidade!'),
+      ),
+    );
+    return;
+  }
+
+  // Navega para a rota '/quiz' passando o mapa de configurações como argumento
+  Navigator.pushNamed(
+    context,
+    '/quiz',
+    arguments: _perguntasPorMateria,
+  );
+}
+  
 
   @override
   Widget build(BuildContext context) {
+    final primaryColor = Theme.of(context).primaryColor;
+
     return Scaffold(
       appBar: CustomAppBar(
-        title: 'NOTA 1000',
-        showBackButton: false,
+        title: 'Nota 1000',
+        showBackButton: true,
       ),
-      body: SingleChildScrollView(
+      body: Padding(
         padding: const EdgeInsets.all(16.0),
-        child: Center(
-          child: ConstrainedBox(
-            constraints: const BoxConstraints(maxWidth: 500),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                // Grade dos 14 botões
-                GridView.builder(
-                  shrinkWrap: true,
-                  physics: const NeverScrollableScrollPhysics(),
-                  gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                    crossAxisCount: 2,
-                    crossAxisSpacing: 18,
-                    mainAxisSpacing: 15,
-                    childAspectRatio: 14/5,
-                  ),
-                  itemCount: question.length,
-                  itemBuilder: (context, index) {
-                    final materia = question[index];
-                    final contadorInd = contadoresIndividuais[materia] ?? 0;
-
-                    return MateriaButton(
-                      materia: materia,
-                      contador: contadorInd,
-                      onPressed: () => _incrementarMateria(materia),
-                    );
-                  },
-                ),
-
-                const SizedBox(height: 25),
-
-                // Painel Inferior
-                PainelInferior(
-                  controller: _controllerNumeroPerguntas,
-                  temTempo: temTempo,
-                  onChangedTempo: (value) {
-                    setState(() {
-                      temTempo = value ?? false;
-                    });
-                  },
-                  onPressedVoltar: _voltarPergunta,
-                  onPressedComecar: () {
-                    _iniciarQuiz();
-                  },
-                ),
-              ],
-            ),
-          ),
-        ),
-      ),
-    );
-  }
-}
-
-class MateriaButton extends StatelessWidget {
-  final String materia;
-  final int contador;
-  final VoidCallback onPressed;
-
-  const MateriaButton({
-    super.key,
-    required this.materia,
-    required this.contador,
-    required this.onPressed,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return ElevatedButton(
-      style: ElevatedButton.styleFrom(
-        backgroundColor: Colors.grey[300],
-        foregroundColor: Colors.black87,
-        elevation: 0,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(4),
-        ),
-      ),
-      onPressed: onPressed,
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          Expanded(
-            child: Text(
-              materia,
-              overflow: TextOverflow.ellipsis,
-              style: const TextStyle(fontSize: 12),
-            ),
-          ),
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-            decoration: BoxDecoration(
-              color: Colors.grey[400],
-              borderRadius: BorderRadius.circular(3),
-            ),
-            child: Text(
-              '$contador',
-              style: const TextStyle(fontSize: 11, fontWeight: FontWeight.bold),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-class PainelInferior extends StatelessWidget {
-  final TextEditingController controller;
-  final bool temTempo;
-  final ValueChanged<bool?> onChangedTempo;
-  final VoidCallback onPressedVoltar;
-  final VoidCallback onPressedComecar;
-
-  const PainelInferior({
-    super.key,
-    required this.controller,
-    required this.temTempo,
-    required this.onChangedTempo,
-    required this.onPressedVoltar,
-    required this.onPressedComecar,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.stretch,
-      children: [
-        const Text(
-          'Numero de Perguntas',
-          style: TextStyle(fontSize: 13, fontWeight: FontWeight.w500, color: Colors.black54),
-        ),
-        const SizedBox(height: 6),
-        TextField(
-          controller: controller,
-          keyboardType: TextInputType.number,
-          decoration: InputDecoration(
-            filled: true,
-            fillColor: Colors.grey[300],
-            border: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(4),
-              borderSide: BorderSide.none,
-            ),
-            contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
-          ),
-        ),
-        const SizedBox(height: 8),
-        Row(
+        child: Column(
           children: [
+            // Barra superior exibindo o total acumulado
+            Container(
+              width: double.infinity,
+              padding: const EdgeInsets.symmetric(vertical: 12),
+              decoration: BoxDecoration(
+                color: Colors.grey[300],
+                borderRadius: BorderRadius.circular(8),
+              ),
+              child: Center(
+                child: Text(
+                  'Numero de perguntas totais ($_totalPerguntas)',
+                  style: const TextStyle(
+                    fontWeight: FontWeight.bold,
+                    fontSize: 16,
+                    color: Colors.black87,
+                  ),
+                ),
+              ),
+            ),
+            const SizedBox(height: 16),
+
+            // Grid com as matérias
+            Expanded(
+              child: GridView.builder(
+                gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                  crossAxisCount: 2,
+                  crossAxisSpacing: 12,
+                  mainAxisSpacing: 12,
+                  childAspectRatio: 2.5,
+                ),
+                itemCount: question.length,
+                itemBuilder: (context, index) {
+                  String materia = question[index];
+                  bool isTodas = materia == "Todas";
+                  int qtdSelected = _perguntasPorMateria[materia] ?? 0;
+                  bool isSelected = qtdSelected > 0;
+
+                  return ElevatedButton(
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: isTodas
+                          ? Colors.orangeAccent
+                          : (isSelected ? primaryColor : Colors.grey[300]),
+                      foregroundColor: (isSelected || isTodas) ? Colors.white : Colors.black87,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                    ),
+                    onPressed: () => _onMateriaTap(materia),
+                    child: Text(
+                      isTodas
+                          ? 'Todas (+1)'
+                          : (isSelected ? '$materia\n($qtdSelected)' : materia),
+                      textAlign: TextAlign.center,
+                      style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w600),
+                    ),
+                  );
+                },
+              ),
+            ),
+            const SizedBox(height: 16),
+
+            // Botão Começar
             SizedBox(
-              height: 24,
-              width: 24,
-              child: Checkbox(
-                value: temTempo,
-                onChanged: onChangedTempo,
-              ),
-            ),
-            const SizedBox(width: 8),
-            const Text(
-              'Tempo para as perguntas',
-              style: TextStyle(fontSize: 13, color: Colors.black87),
-            ),
-          ],
-        ),
-        const SizedBox(height: 25),
-        Row(
-          children: [
-            Expanded(
-              child: OutlinedButton(
-                style: OutlinedButton.styleFrom(
-                  padding: const EdgeInsets.symmetric(vertical: 14),
-                  side: const BorderSide(color: Colors.grey),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(4),
-                  ),
-                ),
-                onPressed: onPressedVoltar,
-                child: const Text(
-                  'VOLTAR',
-                  style: TextStyle(fontSize: 12, color: Colors.black87),
-                ),
-              ),
-            ),
-            const SizedBox(width: 12),
-            Expanded(
-              flex: 2,
+              width: double.infinity,
+              height: 50,
               child: ElevatedButton(
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: const Color(0xFF00B050),
-                  padding: const EdgeInsets.symmetric(vertical: 14),
+                  backgroundColor: Theme.of(context).colorScheme.primary, // Sincronizado com a cor padrão/tema
+                  foregroundColor: Theme.of(context).colorScheme.onPrimary, // Cor do texto adequada ao fundo
                   shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(4),
+                    borderRadius: BorderRadius.circular(8),
                   ),
                 ),
-                onPressed: onPressedComecar,
+                onPressed: _iniciarSimulado,
                 child: const Text(
-                  'INICIAR',
-                  style: TextStyle(
-                    fontSize: 14,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.white,
-                  ),
+                  'Começar',
+                  style: TextStyle(fontSize: 18, color: Colors.white),
                 ),
               ),
             ),
           ],
         ),
-      ],
+      ),
     );
   }
 }

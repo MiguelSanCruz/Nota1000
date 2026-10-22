@@ -11,8 +11,8 @@ class LoginPage extends StatefulWidget {
 }
 
 class LoginPageState extends State<LoginPage> {
-  String username = 'miguel';
-  String password = '123';
+  String username = '';
+  String password = '';
 
   @override
   Widget build(BuildContext context) {
