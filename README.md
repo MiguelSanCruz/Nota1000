@@ -95,3 +95,22 @@ Certifique-se de ter o [Flutter SDK](https://docs.flutter.dev/get-started/instal
 1. Clone o repositório:
    ```bash
    git clone [https://github.com/seu-usuario/nota-1000.git](https://github.com/seu-usuario/nota-1000.git)
+
+2. Clone o repositório:
+   ```bash
+   cd nota-1000
+
+3. Clone o repositório:
+   ```bash
+   flutter pub get
+
+4. Clone o repositório:
+   ```bash
+   flutter run
+
+---
+
+## 👨‍💻 Autor
+Desenvolvido por Miguel Santana Cruz.
+
+Nota 1000 — Rumo à nota máxima no ENEM!
